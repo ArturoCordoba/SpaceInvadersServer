@@ -29,7 +29,8 @@ struct Datos
     int vidas;
     int velocidad;
     int estadoBunker;
-}datos;
+};
+//10.0.2.15
 
 
 /**
@@ -53,12 +54,10 @@ int main ()
     ///Variables auxiliares de formato de red
     int auxiliar;
     int longitudCadena;
-    char cadena[100];
+    char cadena[1000];
 
-    /**
-    * Se abre el socket servidor, con su respectivo puerto. Avisa si hay algun
-    * problema o error.
-    */
+    ///Se abre el socket servidor con su respecitvo puerto. Avisa si hay algun
+    ///problema o error
     socketServidor = Abre_Socket_Inet(PORT);
     if(socketServidor == -1)
     {
@@ -66,13 +65,12 @@ int main ()
       exit(-1);
     }
 
-    /**
-    * Bucle infinito.
-    * Se atiende las conexiones de los clientes y los mensajes enviados por los
-    * clientes conectados.
-    */
+    ///Bucle infinito
+    ///Se atiende las conexiones de los clientes y los mensajes enviados por los
+    ///clientes conectados.
     while(1)
     {
+
         ///Se comprueba si algun cliente nuevo desea conectarse y se le admite.
         if(FD_ISSET(socketServidor, &descriptoresLectura))
             nuevoCliente(socketServidor, socketCliente, &numeroClientes);
@@ -108,45 +106,32 @@ int main ()
                 ///Se lee lo enviado por el cliente y se escribe en pantalla
                 if((Lee_Socket(socketCliente[i], (char *)&buffer, sizeof(int)) > 0))
                 {
-                    //Ejemplo de prueba
-
-                    //En la condicion se lee la informacion del cliente, primero
-                    //el numero de caracteres de la cadena que vamos a recibir
-                    //(incluido el \0)y luego la cadena.
-
-                    //El entero recibido hay que transformarlo de formato de red
-                    //a formato de hardware
+                    ///El entero recibido hay que transformalo de formato de red a
+                    ///formato de hardware.
                     longitudCadena = ntohl(buffer);
-                    printf("Cliente %d envia %d\n", i + 1, longitudCadena-1);
-
-                    //Se lee la cadena
+                    ///Se lee la cadena enviada
                     Lee_Socket(socketCliente[i], cadena, longitudCadena);
                     printf("Cliente %d envia %s\n", i + 1, cadena);
-
-                    //Se envia un entero con la longitud de la cadena (incluido el
-                    // \0 del final) y la cadena.
-                    longitudCadena = 5;
-                    strcpy(cadena, "Hola");
-
-                    //El entero que se envia por el socket hay que transformarlo a
-                    //formato de red.
-                    auxiliar = htonl(longitudCadena);
-
-                    //Se envia el entero transformado
-                    Escribe_Socket(socketCliente[i], (char *)&auxiliar, sizeof(int));
-                    printf("Servidor C: Enviado %d a Cliente %d\n", longitudCadena-1, i+1);
-
-                    //Se envia la cadena
-                    Escribe_Socket(socketCliente[i], cadena, longitudCadena);
-                    printf("servidor C: Enviado %s a Cliente %d\n", cadena, i+1);
 
                     ///Se envia datos a los clientes observadores
                     for(int j = 0; j < numeroClientes; j++)
                     {
                         if(i != j)
                         {
-                            //Se envia datos a los clientes observadores
-                            //Ej: Escribe_Socket(socketCliente[j], cadena, longitudCadena);
+                            ///Se envia un entero con la longitud de la cadena (incluido
+                            ///el \0 del final) y la cadena.
+
+                            ///El entero que se envia por el socket hay que transformarlo
+                            ///a formato de red
+                            auxiliar = htonl(longitudCadena);
+
+                            ///Se envia el entero transformado
+                            Escribe_Socket(socketCliente[j], (char *)&auxiliar, sizeof(int));
+                            printf("Servidor C: Enviado %d a Cliente Observador\n", longitudCadena -1);
+
+                            ///Se envia la cadena recibida
+                            Escribe_Socket(socketCliente[j], cadena, longitudCadena);
+                            printf("Servidor C: Enviado %s a Cliente Observador\n", cadena);
                         }
                     }
 
